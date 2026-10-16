@@ -18,6 +18,7 @@
 # You can download the latest version of this script from:
 # https://github.com/MiSTer-devel/Scripts_MiSTer
 
+# Version 1.1.2 - 2026-10-16 - Busybox was updated, nfs mount options updated
 # Version 1.1.1 - 2024-02-17 - Update Github link
 # Version 1.1 - 2022-12-25 - Cosmetics
 # Version 1.0 - 2021-12-29 - First commit
@@ -43,7 +44,7 @@ MAC="FFFFFFFFFFFF"
 SERVER_MAC="00:11:22:33:44:55"
 
 # Optional additional mount options.
-MOUNT_OPTIONS="noatime"
+MOUNT_OPTIONS="noatime,vers=3,nolock"
 
 # "yes" for automounting NFS shares at boot time;
 # it will create start/kill scripts in /etc/network/if-up.d and /etc/network/if-down.d.
@@ -178,7 +179,7 @@ EOF
   # Create network interface down script
   cat >"${NET_DOWN_SCRIPT}" <<EOF
 #!/bin/bash
-umount -a -t nfs4
+umount -a -t nfs
 EOF
   chmod 755 "${NET_DOWN_SCRIPT}"
 
@@ -236,7 +237,7 @@ function mount_nfs() {
     /usr/bin/logger "Error: failed to create directory /tmp/${SCRIPT_NAME}"
     exit 1
   fi
-  if ! /usr/bin/busybox mount -t nfs4 "${SERVER}:${SERVER_PATH}" "/tmp/${SCRIPT_NAME}" -o "${MOUNT_OPTIONS}"; then
+  if ! /usr/bin/busybox mount -t nfs "${SERVER}:${SERVER_PATH}" "/tmp/${SCRIPT_NAME}" -o "${MOUNT_OPTIONS}"; then
     /usr/bin/logger "Error: failed to mount NFS share ${SERVER}:${SERVER_PATH} to /tmp/${SCRIPT_NAME}"
     exit 1
   fi
